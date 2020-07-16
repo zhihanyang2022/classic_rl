@@ -2,7 +2,7 @@
 
 Modular implementation of tabular RL algorithms.
 
-Dependencies: `numpy`, `tqdm`
+It has minimal dependency: `numpy` and `tqdm`.
 
 A full-fledged documentation is available [here](https://zhihanyang2022.github.io/classic_rl/index.html).
 
