@@ -41,7 +41,23 @@ class DeterministicPolicy:
         :return: action
         """
         return self.act_hardly(s)
-    
+
+    def calc_pi_a_given_s(self, a, s):
+        """
+        Calculate π(a|s), the probability of taking action a in state s under target policy π (deterministic).
+        
+        :param a: action
+        :param s: state
+
+        :return: π(a|s)
+        """
+        
+        winning_actions = self.get_winning_actions(s)
+        
+        if a in winning_actions: 
+            return 1 / len(winning_actions)
+        else: 
+            return 0  
 
 class EpsilonSoftPolicy(DeterministicPolicy):
 
@@ -76,28 +92,7 @@ class EpsilonSoftPolicy(DeterministicPolicy):
         :return: action
         """
         return self.act_softly(s)
-        
-        
-class BTPolicy(EpsilonSoftPolicy):
-    """A policy class that serves as both the target and behavior policy for off-policy methods."""
 
-    def calc_pi_a_given_s(self, a, s):
-        """
-        Calculate π(a|s), the probability of taking action a in state s under target policy π (deterministic).
-        
-        :param a: action
-        :param s: state
-
-        :return: π(a|s)
-        """
-        
-        winning_actions = self.get_winning_actions(s)
-        
-        if a in winning_actions: 
-            return 1 / len(winning_actions)
-        else: 
-            return 0
-        
     def calc_b_a_given_s(self, a, s):
         """
         Calculate b(a|s), the probability of taking action a in state s under behavior policy b (epsilon-soft).
@@ -115,3 +110,11 @@ class BTPolicy(EpsilonSoftPolicy):
             return (1 - self.epsilon) * (1 / len(winning_actions)) + self.epsilon * (1 / self.num_actions)
         else:
             return self.epsilon * (1 / self.num_actions)
+        
+        
+class BTPolicy(EpsilonSoftPolicy):
+    """A policy class that serves as both the target and behavior policy for off-policy methods."""
+
+    pass
+        
+    

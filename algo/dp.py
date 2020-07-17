@@ -15,13 +15,14 @@ class PolicyEvaluation:
         self.init_q()
 
     def init_q(self):
-        self.q = np.random.uniform(size=self.env.shape)
+        self.q = np.zeros(self.env.shape)
 
     def do_policy_evaluation(self, tol) -> None:
 
         while True:
                 
             error = 0
+            optimality_error = 0
 
             for sa, old_q in np.ndenumerate(self.q):
 
@@ -31,25 +32,45 @@ class PolicyEvaluation:
 
                     self.env.reset()
 
-                    self.env.current_coord = state; next_state, reward = self.env.step(action)
+                    self.env.current_coord = state
 
-                    self.q[state][action] = reward + self.q[next_state][self.policy.act(next_state)]  # the update step
+                    next_state, reward = self.env.step(action)
 
-                    error = np.max([error, np.abs(old_q - self.q[sa])])
+                    weights, qs = [], []
+                    for next_action in range(self.env.num_actions):
+                        weights.append(self.policy.calc_b_a_given_s(next_action, next_state))
+                        qs.append(self.q[next_state][next_action])
 
-            if error < self.tol: 
-                break
+                    v_next_state = np.sum(np.array(weights) * np.array(qs))
+
+                    self.q[state][action] = reward + v_next_state  # the update step
+
+                    optimal_q = reward + self.q[next_state][self.policy.act_hardly(next_state)]
+
+                    optimality_error = np.max([optimality_error, np.abs(optimal_q - self.q[state][action])])
+
+                    error = np.max([error, np.abs(old_q - self.q[state][action])])
+
+            if optimality_error < tol:
+                return True
+            elif error < tol: 
+                return False
 
     def train(self, tol=1e-3):
 
+        print(f"==========")
         print(f"Running DP policy evaluation ...")
 
         self.do_policy_evaluation(tol)
 
         print("Result: Convergence reached.")
+        print(f"==========")
 
 
 class PolicyIteration(PolicyEvaluation):
+
+    def init_q(self):
+        self.q = self.policy.q.copy()
         
     def do_policy_improvement(self) -> bool:
 
@@ -66,17 +87,17 @@ class PolicyIteration(PolicyEvaluation):
             
                 if state != self.env.end_coord:
 
-                    old_action = self.policy.act_softly(state)
+                    old_action = self.policy.act(state)
 
                     self.policy.q[state] = self.q[state].copy()  # policy automatically computes the argmax
                     new_action = self.policy.act(state)
 
-                    if old_action != new_action and self.q[state][old_action] != self.q[state][new_action]:
+                    if old_action != new_action and self.policy.q[state][old_action] != self.policy.q[state][new_action]:
                         policy_stable = False
 
         return policy_stable
 
-    def train(self, num_iterations, tol=1e-3):
+    def train(self, max_iterations, tol=1e-3, epsilon_multiplier=0.95, value_focus=False):
 
         """
         Run the policy iteration algorithm.
@@ -86,17 +107,27 @@ class PolicyIteration(PolicyEvaluation):
             tol: the precision tolerance for policy evaluation
         """
 
-        assert num_iterations >= 1
+        assert max_iterations >= 1
+        assert epsilon_multiplier > 0 and epsilon_multiplier < 1
 
-        print(f"Running DP policy iteration for {num_iterations} iterations ...")
+        print(f"Running DP policy iteration for at most {max_iterations} iterations ...")
             
-        for i in tqdm(range(1, num_iterations+1)):
+        for i in range(1, max_iterations+1):
+
+            print(f'Iteration: {i}')
         
-            self.do_policy_evaluation(tol)
+            value_stable = self.do_policy_evaluation(tol)
             policy_stable = self.do_policy_improvement()
 
-            if policy_stable:
+            if policy_stable and not value_focus:
                 print(f"Result: Convergence reached at iteration {i}.")
+                return
+
+            if value_stable and value_focus:
+                print(f'Result: Convergence reached at iteration {i}')
+                return
+
+            self.policy.epsilon *= epsilon_multiplier  # Robin-Monro procedure
 
         print(f"Result: Convergence not reached after {i} iterations.")
 
