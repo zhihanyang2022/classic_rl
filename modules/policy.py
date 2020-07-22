@@ -8,12 +8,12 @@ class DeterministicPolicy:
         :param epsilon: total probability assigned to choosing actions randomly
         :param q: the q-value table used to determine to argmax actions
         """
-        self.q = q
+        self.q = q.copy()
         self.num_actions = self.q.shape[-1]
         
     def get_winning_actions(self, s):
         """
-        Helper method to self.act_hardly.
+        Helper method to self.act_greedily.
         Determine the best actions(s) to take in a state. 
         
         :param s: state
@@ -23,13 +23,13 @@ class DeterministicPolicy:
         winners = np.argwhere(action_vals == np.max(action_vals)).flatten()
         return winners
     
-    def act_hardly(self, s):
+    def act_greedily(self, s):
         """
         Helper method to self.act.
         Return an action that is randomly chosen from the results of self.get_winning_actions(s).
         
         :param s: state
-        :return: a hard action
+        :return: a greedy action
         """
         return np.random.choice(self.get_winning_actions(s))
 
@@ -40,7 +40,7 @@ class DeterministicPolicy:
         :param s: state
         :return: action
         """
-        return self.act_hardly(s)
+        return self.act_greedily(s)
 
     def calc_pi_a_given_s(self, a, s):
         """
@@ -59,7 +59,7 @@ class DeterministicPolicy:
         else: 
             return 0  
 
-class EpsilonSoftPolicy(DeterministicPolicy):
+class EpsilonGreedyPolicy(DeterministicPolicy):
 
     def __init__(self, epsilon, **kwargs):
         super().__init__(**kwargs)
@@ -77,12 +77,12 @@ class EpsilonSoftPolicy(DeterministicPolicy):
     def act_softly(self, s):
         """
         Helper method to self.act.
-        Return self.act_hardly(s) with probability 1 - self.epsilon and self.act_randomly() with probability self.epsilon.
+        Return self.act_greedily(s) with probability 1 - self.epsilon and self.act_randomly() with probability self.epsilon.
         
         :param s: state
         :return: a soft action
         """
-        return self.act_hardly(s) if np.random.uniform(0, 1) > self.epsilon else self.act_randomly()
+        return self.act_greedily(s) if np.random.uniform(0, 1) > self.epsilon else self.act_randomly()
 
     def act(self, s):
         """
@@ -111,8 +111,8 @@ class EpsilonSoftPolicy(DeterministicPolicy):
         else:
             return self.epsilon * (1 / self.num_actions)
         
-        
-class BTPolicy(EpsilonSoftPolicy):
+    
+class BTPolicy(EpsilonGreedyPolicy):
     """A policy class that serves as both the target and behavior policy for off-policy methods."""
 
     pass

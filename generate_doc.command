@@ -2,8 +2,8 @@
 
 cd $PROJ/classic_rl
 
-pdoc --html --output-dir docs . --force
+pdoc --html --output-dir docs modules --force --config latex_math=True
 cd docs
-cp -a classic_rl/. .
-rm -rf classic_rl
+cp -a modules/. .
+rm -rf modules
 cd ..
