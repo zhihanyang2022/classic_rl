@@ -47,12 +47,6 @@ class VanillaGridWorld:
         else:
             return False
 
-    def is_coord_terminal(self, coord):
-        if self.current_coord == self.end_coord: 
-            return True
-        else:
-            return False
-
     def get_reward(self, coord):
         return -1
 
@@ -65,14 +59,16 @@ class VanillaGridWorld:
         if self.is_coord_valid(proposed_next_coord):
             self.current_coord = proposed_next_coord
         
-        self.episode_terminated = self.is_coord_terminal(self.current_coord)
-        
         return self.current_coord, self.get_reward(self.current_coord)
+
+    def is_episode_terminated(self):
+        if self.current_coord == self.end_coord: 
+            return True
+        else:
+            return False
     
     def reset(self):
         self.current_coord = self.start_coord
-        self.episode_terminated = False
-
 
 class GridWorldWithWallsAndTraps(VanillaGridWorld):
 
