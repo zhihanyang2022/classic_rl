@@ -82,7 +82,11 @@ class EpsilonGreedyPolicy(DeterministicPolicy):
         :param s: state
         :return: a soft action
         """
-        return self.act_greedily(s) if np.random.uniform(0, 1) > self.epsilon else self.act_randomly()
+        if self.epsilon < 1:
+            # np.random.uniform messes up random seed
+            return self.act_greedily(s) if np.random.uniform(0, 1) > self.epsilon else self.act_randomly()
+        else:
+            return self.act_randomly()
 
     def act(self, s):
         """

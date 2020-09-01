@@ -67,7 +67,7 @@ class PolicyEvaluation:
         Helper method to `self.__init__`.
         Initialize a q-table of all zeros.
         &#34;&#34;&#34;
-        self.q = np.zeros(self.env.shape)
+        self.q = np.zeros(self.env.action_space_shape)
 
     def backup_v(self, s) -&gt; float:
         &#34;&#34;&#34;
@@ -331,7 +331,7 @@ any state; otherwise policy evaluation won't converge.</dd>
         Helper method to `self.__init__`.
         Initialize a q-table of all zeros.
         &#34;&#34;&#34;
-        self.q = np.zeros(self.env.shape)
+        self.q = np.zeros(self.env.action_space_shape)
 
     def backup_v(self, s) -&gt; float:
         &#34;&#34;&#34;
@@ -503,7 +503,7 @@ Initialize a q-table of all zeros.</p></div>
     Helper method to `self.__init__`.
     Initialize a q-table of all zeros.
     &#34;&#34;&#34;
-    self.q = np.zeros(self.env.shape)</code></pre>
+    self.q = np.zeros(self.env.action_space_shape)</code></pre>
 </details>
 </dd>
 <dt id="modules.algo.dp.PolicyEvaluation.loop_state_action_qval"><code class="name flex">

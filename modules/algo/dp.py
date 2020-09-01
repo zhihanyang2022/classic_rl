@@ -38,7 +38,7 @@ class PolicyEvaluation:
         Helper method to `self.__init__`.
         Initialize a q-table of all zeros.
         """
-        self.q = np.zeros(self.env.shape)
+        self.q = np.zeros(self.env.action_space_shape)
 
     def backup_v(self, s) -> float:
         """
@@ -196,6 +196,31 @@ class PolicyIteration(PolicyEvaluation):
         Helper method to self.run.
         """       
         self.policy.q = self.q.copy()
+
+    def sample_greedy_trajectory(self, old_q, tau):
+
+        sas = []
+
+        self.env.reset()
+
+        while not self.env.is_episode_terminated():
+
+            s = self.env.current_coord
+            a = self.policy.act_greedily(s)
+            sas.append((s, a))
+
+            tau = tau + 1
+            tau[s[1], a] = 0
+
+            curiosity_q = tau * 5e-3
+
+            s_prime, r = self.env.step(a)
+
+            self.q = old_q + curiosity_q
+
+            self.policy.q = self.q.copy()
+
+        return sas, tau
 
     def run(self, max_iterations, which_tqdm) -> None:
         """

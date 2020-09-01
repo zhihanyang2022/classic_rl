@@ -44,7 +44,11 @@ class VanillaGridWorld:
         self.episode_terminated = False
 
     @property
-    def shape(self):
+    def state_space_shape(self):
+        return self.num_rows, self.num_cols
+
+    @property
+    def action_space_shape(self):
         return self.num_rows, self.num_cols, self.num_actions
 
     def get_actions(self, s):
@@ -76,12 +80,6 @@ class VanillaGridWorld:
         else:
             return False
 
-    def is_coord_terminal(self, coord):
-        if self.current_coord == self.end_coord: 
-            return True
-        else:
-            return False
-
     def get_reward(self, coord):
         return -1
 
@@ -94,14 +92,16 @@ class VanillaGridWorld:
         if self.is_coord_valid(proposed_next_coord):
             self.current_coord = proposed_next_coord
         
-        self.episode_terminated = self.is_coord_terminal(self.current_coord)
-        
         return self.current_coord, self.get_reward(self.current_coord)
+
+    def is_episode_terminated(self):
+        if self.current_coord == self.end_coord: 
+            return True
+        else:
+            return False
     
     def reset(self):
         self.current_coord = self.start_coord
-        self.episode_terminated = False
-
 
 class GridWorldWithWallsAndTraps(VanillaGridWorld):
 
@@ -302,7 +302,11 @@ immediately sent back to its last grid and receives a reward given by self.rewar
         self.episode_terminated = False
 
     @property
-    def shape(self):
+    def state_space_shape(self):
+        return self.num_rows, self.num_cols
+
+    @property
+    def action_space_shape(self):
         return self.num_rows, self.num_cols, self.num_actions
 
     def get_actions(self, s):
@@ -334,12 +338,6 @@ immediately sent back to its last grid and receives a reward given by self.rewar
         else:
             return False
 
-    def is_coord_terminal(self, coord):
-        if self.current_coord == self.end_coord: 
-            return True
-        else:
-            return False
-
     def get_reward(self, coord):
         return -1
 
@@ -352,13 +350,16 @@ immediately sent back to its last grid and receives a reward given by self.rewar
         if self.is_coord_valid(proposed_next_coord):
             self.current_coord = proposed_next_coord
         
-        self.episode_terminated = self.is_coord_terminal(self.current_coord)
-        
         return self.current_coord, self.get_reward(self.current_coord)
+
+    def is_episode_terminated(self):
+        if self.current_coord == self.end_coord: 
+            return True
+        else:
+            return False
     
     def reset(self):
-        self.current_coord = self.start_coord
-        self.episode_terminated = False</code></pre>
+        self.current_coord = self.start_coord</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -366,7 +367,7 @@ immediately sent back to its last grid and receives a reward given by self.rewar
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="modules.env.gridworld.VanillaGridWorld.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dt id="modules.env.gridworld.VanillaGridWorld.action_space_shape"><code class="name">var <span class="ident">action_space_shape</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -374,8 +375,20 @@ immediately sent back to its last grid and receives a reward given by self.rewar
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def shape(self):
+def action_space_shape(self):
     return self.num_rows, self.num_cols, self.num_actions</code></pre>
+</details>
+</dd>
+<dt id="modules.env.gridworld.VanillaGridWorld.state_space_shape"><code class="name">var <span class="ident">state_space_shape</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def state_space_shape(self):
+    return self.num_rows, self.num_cols</code></pre>
 </details>
 </dd>
 </dl>
@@ -407,22 +420,6 @@ def shape(self):
     return -1</code></pre>
 </details>
 </dd>
-<dt id="modules.env.gridworld.VanillaGridWorld.is_coord_terminal"><code class="name flex">
-<span>def <span class="ident">is_coord_terminal</span></span>(<span>self, coord)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_coord_terminal(self, coord):
-    if self.current_coord == self.end_coord: 
-        return True
-    else:
-        return False</code></pre>
-</details>
-</dd>
 <dt id="modules.env.gridworld.VanillaGridWorld.is_coord_valid"><code class="name flex">
 <span>def <span class="ident">is_coord_valid</span></span>(<span>self, coord)</span>
 </code></dt>
@@ -434,6 +431,22 @@ def shape(self):
 </summary>
 <pre><code class="python">def is_coord_valid(self, coord):
     if not self.is_out_of_world(coord):
+        return True
+    else:
+        return False</code></pre>
+</details>
+</dd>
+<dt id="modules.env.gridworld.VanillaGridWorld.is_episode_terminated"><code class="name flex">
+<span>def <span class="ident">is_episode_terminated</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_episode_terminated(self):
+    if self.current_coord == self.end_coord: 
         return True
     else:
         return False</code></pre>
@@ -499,8 +512,7 @@ def shape(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reset(self):
-    self.current_coord = self.start_coord
-    self.episode_terminated = False</code></pre>
+    self.current_coord = self.start_coord</code></pre>
 </details>
 </dd>
 <dt id="modules.env.gridworld.VanillaGridWorld.step"><code class="name flex">
@@ -520,8 +532,6 @@ def shape(self):
     
     if self.is_coord_valid(proposed_next_coord):
         self.current_coord = proposed_next_coord
-    
-    self.episode_terminated = self.is_coord_terminal(self.current_coord)
     
     return self.current_coord, self.get_reward(self.current_coord)</code></pre>
 </details>
@@ -555,15 +565,16 @@ def shape(self):
 <li>
 <h4><code><a title="modules.env.gridworld.VanillaGridWorld" href="#modules.env.gridworld.VanillaGridWorld">VanillaGridWorld</a></code></h4>
 <ul class="">
+<li><code><a title="modules.env.gridworld.VanillaGridWorld.action_space_shape" href="#modules.env.gridworld.VanillaGridWorld.action_space_shape">action_space_shape</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.get_actions" href="#modules.env.gridworld.VanillaGridWorld.get_actions">get_actions</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.get_reward" href="#modules.env.gridworld.VanillaGridWorld.get_reward">get_reward</a></code></li>
-<li><code><a title="modules.env.gridworld.VanillaGridWorld.is_coord_terminal" href="#modules.env.gridworld.VanillaGridWorld.is_coord_terminal">is_coord_terminal</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.is_coord_valid" href="#modules.env.gridworld.VanillaGridWorld.is_coord_valid">is_coord_valid</a></code></li>
+<li><code><a title="modules.env.gridworld.VanillaGridWorld.is_episode_terminated" href="#modules.env.gridworld.VanillaGridWorld.is_episode_terminated">is_episode_terminated</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.is_further_action_possible" href="#modules.env.gridworld.VanillaGridWorld.is_further_action_possible">is_further_action_possible</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.is_out_of_world" href="#modules.env.gridworld.VanillaGridWorld.is_out_of_world">is_out_of_world</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.propose_next_coord" href="#modules.env.gridworld.VanillaGridWorld.propose_next_coord">propose_next_coord</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.reset" href="#modules.env.gridworld.VanillaGridWorld.reset">reset</a></code></li>
-<li><code><a title="modules.env.gridworld.VanillaGridWorld.shape" href="#modules.env.gridworld.VanillaGridWorld.shape">shape</a></code></li>
+<li><code><a title="modules.env.gridworld.VanillaGridWorld.state_space_shape" href="#modules.env.gridworld.VanillaGridWorld.state_space_shape">state_space_shape</a></code></li>
 <li><code><a title="modules.env.gridworld.VanillaGridWorld.step" href="#modules.env.gridworld.VanillaGridWorld.step">step</a></code></li>
 </ul>
 </li>
